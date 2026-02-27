@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JUSTIS OFFICIAL • PUBLIC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0000;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+        }
+
+        .loading-screen.hidden {
+            display: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #330000;
+            border-top: 5px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Full Screen Ad */
+        .ad-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .ad-fullscreen.hidden {
+            display: none;
+        }
+
+        .ad-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            border: 3px solid #ff0000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 30px rgba(255,0,0,0.5); }
+            50% { box-shadow: 0 0 60px rgba(255,0,0,0.9); }
+            100% { box-shadow: 0 0 30px rgba(255,0,0,0.5); }
+        }
+
+        .ad-content img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .ad-close-full {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #ff0000;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10001;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px red;
+        }
+
+        .ad-close-full:hover {
+            transform: scale(1.1);
+            background: #ff4444;
+        }
+
+        .ad-click-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Three dots menu */
+        .menu-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .menu-dots {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .menu-dots:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px red;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 200px;
+            background: rgba(10, 0, 0, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 10px 0;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            color: #ffaaaa;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 0, 0, 0.2);
+            color: white;
+        }
+
+        .menu-item i {
+            width: 20px;
+            color: #ff0000;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(20, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 3px solid #ff0000;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .header h1 {
+            color: #ff0000;
+            font-size: 2.2em;
+            text-shadow: 0 0 10px red;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: #ff8888;
+            margin-top: 5px;
+        }
+
+        /* Login Section */
+        .login-section {
+            background: rgba(10, 0, 0, 0.8);
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .login-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-title {
+            color: #ff0000;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #ff8888;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #440000;
+            border-radius: 10px;
+            color: #ffaaaa;
+            font-size: 1.1em;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #660000, #330000);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(45deg, #880000, #440000);
+            box-shadow: 0 0 30px red;
+        }
+
+        .login-error {
+            color: #ff8888;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* User info */
+        .user-info {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #440000;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .user-phone {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .user-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .badge-public {
+            background: #555555;
+            color: white;
+        }
+
+        .badge-vvip {
+            background: #ffaa00;
+            color: black;
+        }
+
+        .logout-btn {
+            padding: 5px 10px;
+            background: #330000;
+            border: 1px solid #ff0000;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        /* Anti Sender Card */
+        .anti-sender-card {
+            background: linear-gradient(135deg, #1a0000, #2a0000);
+            border: 2px solid #ffaa00;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .anti-sender-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .anti-sender-title {
+            color: #ffaa00;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .anti-sender-toggle {
+            width: 60px;
+            height: 30px;
+            background: #330000;
+            border: 2px solid #ff0000;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .anti-sender-toggle.active {
+            background: #ffaa00;
+            border-color: #ffaa00;
+        }
+
+        .toggle-circle {
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .anti-sender-toggle.active .toggle-circle {
+            left: 32px;
+            background: black;
+        }
+
+        .sender-info {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #440000;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .sender-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #440000;
+        }
+
+        .sender-row:last-child {
+            border-bottom: none;
+        }
+
+        .sender-number {
+            color: #ffaaaa;
+        }
+
+        .sender-status {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+
+        .status-active {
+            background: #00aa00;
+            color: white;
+        }
+
+        .status-banned {
+            background: #ffaa00;
+            color: black;
+        }
+
+        .status-off {
+            background: #555555;
+            color: white;
+        }
+
+        .anti-sender-note {
+            color: #ff8888;
+            font-size: 0.8em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Main buttons */
+        .main-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .main-btn {
+            flex: 1 1 calc(33.333% - 7px);
+            min-width: 100px;
+            aspect-ratio: 1/1;
+            border: 3px solid #ff0000;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 10px;
+            position: relative;
+        }
+
+        .main-btn:hover {
+            border-color: #ff5555;
+            box-shadow: 0 0 30px red;
+            transform: scale(1.02);
+        }
+
+        .main-btn img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ff0000;
+        }
+
+        .main-btn span {
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .vvip-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ffaa00;
+            color: black;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+
+        /* Content panels */
+        .content-panel {
+            background: rgba(10, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .panel-title {
+            color: #ff0000;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Video grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .video-item {
+            background: #1a0000;
+            border: 1px solid #440000;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .video-item:hover {
+            border-color: #ff0000;
+            transform: scale(1.02);
+        }
+
+        .video-item video {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .video-item p {
+            padding: 8px;
+            color: #ffaaaa;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        /* Video modal */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-modal.active {
+            display: flex;
+        }
+
+        .video-modal video {
+            max-width: 90%;
+            max-height: 80%;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 3em;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Type buttons */
+        .type-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            flex: 1 1 calc(50% - 5px);
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #440000;
+            border-radius: 8px;
+            color: #ff8888;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .type-btn:hover:not(.vvip-only) {
+            border-color: #ff0000;
+            color: white;
+        }
+
+        .type-btn.vvip-only {
+            background: rgba(255, 170, 0, 0.1);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .type-btn.selected {
+            border-color: #ff0000;
+            background: rgba(255, 0, 0, 0.2);
+            color: white;
+            box-shadow: 0 0 20px red;
+        }
+
+        /* Action button */
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #660000, #330000);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #880000, #440000);
+            box-shadow: 0 0 30px red;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Pairing result */
+        .pairing-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+        }
+
+        .pairing-code {
+            font-size: 2em;
+            color: #00ff00;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px dashed #00ff00;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            letter-spacing: 5px;
+            cursor: pointer;
+        }
+
+        /* Cooldown */
+        .cooldown-timer {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 2em;
+            color: #ff0000;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 15px 25px;
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.warning {
+            border-color: #ffaa00;
+        }
+
+        .notification.error {
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <!-- Full Screen Ad -->
+    <div class="ad-fullscreen" id="fullscreenAd">
+        <div class="ad-content" onclick="window.open('https://wa.me/62882005369426', '_blank')">
+            <img src="https://files.catbox.moe/kopn0f.png" alt="Iklan Sponsor">
+            <div class="ad-close-full" onclick="event.stopPropagation(); closeFullscreenAd()">✕</div>
+            <div class="ad-click-hint">Klik untuk chat WA</div>
+        </div>
+    </div>
+
+    <!-- Three Dots Menu -->
+    <div class="menu-container">
+        <div class="menu-dots" id="menuDots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-item" id="menuPublic">
+                <i>👤</i> Public Access
+            </div>
+            <div class="menu-item" id="menuVVIP">
+                <i>👑</i> Akses ke VVIP
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>JUSTIS OFFICIAL</h1>
+            <p id="headerSubtitle">PUBLIC ACCESS</p>
+        </div>
+
+        <!-- Login Public -->
+        <div class="login-section active" id="loginPublic">
+            <div class="login-title">🔐 MASUKAN NOMOR ANDA</div>
+            <div class="input-group">
+                <label>Nomor WhatsApp (62xx):</label>
+                <input type="text" class="input-field" id="phoneNumber" placeholder="628123456789" maxlength="13">
+            </div>
+            <button class="login-btn" id="loginPublicBtn">MASUK DASHBOARD</button>
+            <div class="login-error" id="publicError">Nomor tidak valid! Harus 62xx</div>
+        </div>
+
+        <!-- Login VVIP -->
+        <div class="login-section" id="loginVVIP">
+            <div class="login-title">👑 VVIP ACCESS</div>
+            <div class="input-group">
+                <label>Username:</label>
+                <input type="text" class="input-field" id="vvipUsername" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <label>Password:</label>
+                <input type="password" class="input-field" id="vvipPassword" placeholder="Password">
+            </div>
+            <button class="login-btn" id="loginVVIPBtn">LOGIN VVIP</button>
+            <div class="login-error" id="vvipError">Username atau password salah!</div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <!-- User Info -->
+            <div class="user-info" id="userInfo">
+                <span class="user-phone" id="displayUser">-</span>
+                <span class="user-badge" id="userBadge">PUBLIC</span>
+                <button class="logout-btn" id="logoutBtn">LOGOUT</button>
+            </div>
+
+            <!-- Anti Sender Card -->
+            <div class="anti-sender-card" id="antiSenderCard">
+                <div class="anti-sender-header">
+                    <span class="anti-sender-title">🛡️ ANTI SENDER MODE</span>
+                    <div class="anti-sender-toggle" id="antiSenderToggle" onclick="toggleAntiSender()">
+                        <div class="toggle-circle"></div>
+                    </div>
+                </div>
+                <div class="sender-info" id="activeSender">
+                    <div class="sender-row">
+                        <span class="sender-number">Mencari sender...</span>
+                        <span class="sender-status status-off">OFF</span>
+                    </div>
+                </div>
+                <div class="sender-info" id="availableSenders" style="max-height: 150px; overflow-y: auto;"></div>
+                <div class="anti-sender-note">
+                    ⚡ Anti sender akan otomatis menggunakan sender public yang aktif.
+                </div>
+            </div>
+
+            <!-- Main Buttons -->
+            <div class="main-buttons">
+                <div class="main-btn" id="btnAddSender">
+                    <img src="https://files.catbox.moe/goi4fj.jpg" alt="Add Sender">
+                    <span>ADD SENDER</span>
+                </div>
+                <div class="main-btn" id="btnSelectAttack">
+                    <img src="https://files.catbox.moe/xejz5o.jpg" alt="Select Attack">
+                    <span>SELECT ATTACK</span>
+                </div>
+                <div class="main-btn" id="btnAsupan" style="display: none;">
+                    <img src="https://files.catbox.moe/04s46e.jpg" alt="Asupan">
+                    <span>ASUPAN</span>
+                    <div class="vvip-badge">VVIP</div>
+                </div>
+            </div>
+
+            <!-- Add Sender Panel -->
+            <div class="content-panel" id="panelAddSender">
+                <div class="panel-title">🔌 ADD NEW SENDER</div>
+                <div class="input-group">
+                    <label>Nomor Bot Baru (62xx):</label>
+                    <input type="text" class="input-field" id="newSenderPhone" placeholder="628123456789">
+                </div>
+                <button class="action-btn" id="requestPairingBtn">REQUEST PAIRING</button>
+                <div class="pairing-result" id="pairingResult" style="display: none;">
+                    <div style="color:#ff8888;">🔐 PAIRING CODE:</div>
+                    <div class="pairing-code" id="pairingCode" onclick="copyPairingCode()">123456</div>
+                </div>
+            </div>
+
+            <!-- Select Attack Panel -->
+            <div class="content-panel" id="panelSelectAttack">
+                <div class="panel-title">⚡ SELECT ATTACK TYPE</div>
+                <div class="input-group">
+                    <label>Target Number (628xx):</label>
+                    <input type="text" class="input-field" id="targetNumber" placeholder="628123456789">
+                </div>
+                
+                <div class="type-buttons">
+                    <div class="type-btn" data-type="x-plush">x-plush</div>
+                    <div class="type-btn" data-type="crasher">crasher</div>
+                    <div class="type-btn" data-type="call-fc">call-fc</div>
+                    <div class="type-btn vvip-only" data-type="blank-ui" data-vvip="true">blank-ui (VVIP)</div>
+                    <div class="type-btn vvip-only" data-type="frezee-ui" data-vvip="true">frezee-ui (VVIP)</div>
+                    <div class="type-btn vvip-only" data-type="forclose" data-vvip="true">forclose (VVIP)</div>
+                    <div class="type-btn vvip-only" data-type="fc-betta" data-vvip="true">fc-betta (VVIP)</div>
+                    <div class="type-btn vvip-only" data-type="one-blank" data-vvip="true">one-blank (VVIP)</div>
+                </div>
+
+                <button class="action-btn" id="executeAttackBtn" disabled>EXECUTE ATTACK</button>
+                <div class="cooldown-timer" id="cooldownTimer" style="display: none;">
+                    <div class="timer-display" id="timerDisplay">05:00</div>
+                    <div class="timer-label">COOLDOWN 5 MENIT</div>
+                </div>
+            </div>
+
+            <!-- Asupan Panel -->
+            <div class="content-panel" id="panelAsupan">
+                <div class="panel-title">🎥 ASUPAN VVIP</div>
+                <div class="video-grid" id="videoGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="video-modal" id="videoModal" onclick="closeVideoModal()">
+        <span class="close-modal">&times;</span>
+        <video id="modalVideo" controls controlslist="nodownload"></video>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <script>
+        // ================== KONFIGURASI ==================
+        const PUBLIC_PORT = "25565"; // GANTI DENGAN PUBLIC PORT DARI PANEL!
+        const API_URL = `https://maulana.privateserverr.web.id:${PUBLIC_PORT}`;
+        const VVIP_CREDENTIALS = { username: "owner", password: "owner" };
+        const ADMIN_NUMBER = "62882005369426";
+
+        // State
+        let currentUser = null;
+        let userType = null;
+        let selectedType = null;
+        let cooldownEnd = null;
+        let antiSenderActive = false;
+        let currentSender = null;
+        let availableSenders = [];
+        let antiSenderInterval = null;
+
+        // Video list
+        const videos = [
+            "https://files.catbox.moe/8c7gz3.mp4", "https://files.catbox.moe/nk5l10.mp4",
+            "https://files.catbox.moe/r3ip1j.mp4", "https://files.catbox.moe/71l6bo.mp4",
+            "https://files.catbox.moe/rdggsh.mp4", "https://files.catbox.moe/3288uf.mp4",
+            "https://files.catbox.moe/jdopgq.mp4", "https://files.catbox.moe/8ca9cw.mp4",
+            "https://files.catbox.moe/b99qh3.mp4", "https://files.catbox.moe/6bkokw.mp4"
+        ];
+
+        // ================== AUTO REDIRECT ==================
+        async function checkAndRedirect() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/url-config?type=public`);
+                const data = await response.json();
+                
+                if (data.success && data.url && window.location.href !== data.url) {
+                    console.log(`🔄 Redirect ke: ${data.url}`);
+                    window.location.href = data.url;
+                } else {
+                    loadingScreen.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Redirect error:', error);
+                loadingScreen.classList.add('hidden');
+            }
+        }
+
+        // ================== MATRIX BACKGROUND ==================
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrix = "JUSTIS OFFICIAL";
+        const matrixArray = matrix.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for(let x = 0; x < columns; x++) drops[x] = 1;
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff0000';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+
+        // ================== FUNGSI UTAMA ==================
+        window.closeFullscreenAd = () => document.getElementById('fullscreenAd').classList.add('hidden');
+
+        function checkAndShowAd() {
+            if (userType === 'vvip') {
+                document.getElementById('fullscreenAd').classList.add('hidden');
+            } else {
+                document.getElementById('fullscreenAd').classList.remove('hidden');
+            }
+        }
+
+        // Menu
+        document.getElementById('menuDots').addEventListener('click', () => {
+            document.getElementById('menuDropdown').classList.toggle('show');
+        });
+
+        document.getElementById('menuPublic').addEventListener('click', () => {
+            document.getElementById('menuDropdown').classList.remove('show');
+            showPublicLogin();
+            checkAndShowAd();
+        });
+
+        document.getElementById('menuVVIP').addEventListener('click', () => {
+            document.getElementById('menuDropdown').classList.remove('show');
+            showVVIPLogin();
+            document.getElementById('fullscreenAd').classList.add('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.menu-container')) {
+                document.getElementById('menuDropdown').classList.remove('show');
+            }
+        });
+
+        function showPublicLogin() {
+            document.getElementById('loginPublic').classList.add('active');
+            document.getElementById('loginVVIP').classList.remove('active');
+            document.getElementById('headerSubtitle').textContent = 'PUBLIC ACCESS';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        function showVVIPLogin() {
+            document.getElementById('loginVVIP').classList.add('active');
+            document.getElementById('loginPublic').classList.remove('active');
+            document.getElementById('headerSubtitle').textContent = 'VVIP ACCESS';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        // Public login
+        document.getElementById('loginPublicBtn').addEventListener('click', () => {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            
+            if (!phone || !phone.match(/^62\d+$/)) {
+                document.getElementById('publicError').style.display = 'block';
+                return;
+            }
+
+            currentUser = phone;
+            userType = 'public';
+            
+            fetch(`${API_URL}/api/user-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, type: 'public' })
+            }).catch(() => {});
+
+            showDashboard();
+            checkAndShowAd();
+        });
+
+        // VVIP login
+        document.getElementById('loginVVIPBtn').addEventListener('click', () => {
+            const username = document.getElementById('vvipUsername').value.trim();
+            const password = document.getElementById('vvipPassword').value.trim();
+
+            if (username === VVIP_CREDENTIALS.username && password === VVIP_CREDENTIALS.password) {
+                currentUser = 'VVIP';
+                userType = 'vvip';
+                
+                fetch(`${API_URL}/api/user-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: 'VVIP-' + Date.now(), type: 'vvip' })
+                }).catch(() => {});
+
+                showDashboard();
+                document.getElementById('fullscreenAd').classList.add('hidden');
+                document.getElementById('btnAsupan').style.display = 'flex';
+                document.getElementById('antiSenderCard').style.display = 'block';
+                
+                loadAvailableSenders();
+                startAntiSenderMonitor();
+            } else {
+                document.getElementById('vvipError').style.display = 'block';
+            }
+        });
+
+        function showDashboard() {
+            document.getElementById('loginPublic').classList.remove('active');
+            document.getElementById('loginVVIP').classList.remove('active');
+            document.getElementById('dashboard').style.display = 'block';
+            
+            document.getElementById('displayUser').textContent = currentUser;
+            document.getElementById('userBadge').textContent = userType.toUpperCase();
+            document.getElementById('userBadge').className = `user-badge badge-${userType}`;
+            
+            document.getElementById('panelAddSender').classList.add('active');
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            currentUser = null;
+            userType = null;
+            document.getElementById('dashboard').style.display = 'none';
+            showPublicLogin();
+            checkAndShowAd();
+            if (antiSenderInterval) clearInterval(antiSenderInterval);
+        });
+
+        // Panel switching
+        document.getElementById('btnAddSender').addEventListener('click', () => {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panelAddSender').classList.add('active');
+        });
+
+        document.getElementById('btnSelectAttack').addEventListener('click', () => {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panelSelectAttack').classList.add('active');
+        });
+
+        document.getElementById('btnAsupan').addEventListener('click', () => {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panelAsupan').classList.add('active');
+        });
+
+        // Load videos
+        function loadVideos() {
+            const grid = document.getElementById('videoGrid');
+            videos.forEach((url, index) => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                item.onclick = () => playVideo(url);
+                item.innerHTML = `<video src="${url}" preload="metadata"></video><p>Video ${index + 1}</p>`;
+                grid.appendChild(item);
+            });
+        }
+        loadVideos();
+
+        window.playVideo = (url) => {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            video.src = url;
+            modal.classList.add('active');
+            video.play();
+        };
+
+        window.closeVideoModal = () => {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            video.pause();
+            video.src = '';
+            modal.classList.remove('active');
+        };
+
+        // Type selection
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.dataset.vvip === 'true' && userType !== 'vvip') {
+                    showNotification('Fitur ini hanya untuk VVIP!', 'warning');
+                    return;
+                }
+                
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedType = btn.dataset.type;
+                document.getElementById('executeAttackBtn').disabled = false;
+            });
+        });
+
+        // Execute attack
+        document.getElementById('executeAttackBtn').addEventListener('click', async () => {
+            const target = document.getElementById('targetNumber').value.trim();
+            
+            if (!target || !target.match(/^62\d+$/)) {
+                showNotification('Nomor target tidak valid!', 'error');
+                return;
+            }
+
+            if (!selectedType) {
+                showNotification('Pilih tipe attack!', 'error');
+                return;
+            }
+
+            if (cooldownEnd && Date.now() < cooldownEnd) {
+                showNotification('Tunggu cooldown 5 menit!', 'warning');
+                return;
+            }
+
+            try {
+                let senderToUse = currentUser;
+                if (userType === 'vvip' && antiSenderActive && currentSender) {
+                    senderToUse = currentSender;
+                }
+
+                const response = await fetch(`${API_URL}/api/attack`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, type: selectedType, userPhone: currentUser, sender: senderToUse })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`✅ Attack executed: ${selectedType}`, 'success');
+                    cooldownEnd = Date.now() + (5 * 60 * 1000);
+                    document.getElementById('executeAttackBtn').disabled = true;
+                    document.getElementById('cooldownTimer').style.display = 'block';
+                    startCooldown();
+                } else {
+                    showNotification('Gagal: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Gagal konek ke server', 'error');
+            }
+        });
+
+        function startCooldown() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const interval = setInterval(() => {
+                if (!cooldownEnd) {
+                    clearInterval(interval);
+                    return;
+                }
+                const remaining = cooldownEnd - Date.now();
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    document.getElementById('cooldownTimer').style.display = 'none';
+                    document.getElementById('executeAttackBtn').disabled = false;
+                    cooldownEnd = null;
+                } else {
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Request pairing
+        document.getElementById('requestPairingBtn').addEventListener('click', async () => {
+            const phone = document.getElementById('newSenderPhone').value.trim();
+            
+            if (!phone || !phone.match(/^62\d+$/)) {
+                showNotification('Nomor tidak valid!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/request-pairing`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('pairingCode').textContent = data.code;
+                    document.getElementById('pairingResult').style.display = 'block';
+                    showNotification('Pairing code digenerate!', 'success');
+                } else {
+                    showNotification('Gagal: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Gagal konek ke server', 'error');
+            }
+        });
+
+        window.copyPairingCode = () => {
+            navigator.clipboard.writeText(document.getElementById('pairingCode').textContent);
+            showNotification('Kode disalin!', 'success');
+        };
+
+        // Anti sender functions
+        async function loadAvailableSenders() {
+            try {
+                const response = await fetch(`${API_URL}/api/active-senders`);
+                const data = await response.json();
+                if (data.success) {
+                    availableSenders = data.senders.filter(s => s.status === 'active');
+                    updateSenderList();
+                }
+            } catch (error) {}
+        }
+
+        function updateSenderList() {
+            const container = document.getElementById('availableSenders');
+            const activeSenderDiv = document.getElementById('activeSender');
+            
+            container.innerHTML = '';
+            availableSenders.forEach(sender => {
+                container.innerHTML += `<div class="sender-row"><span class="sender-number">${sender.phone}</span><span class="sender-status status-active">Active</span></div>`;
+            });
+
+            if (antiSenderActive && !currentSender && availableSenders.length > 0) {
+                currentSender = availableSenders[0].phone;
+            }
+
+            activeSenderDiv.innerHTML = antiSenderActive && currentSender
+                ? `<div class="sender-row"><span class="sender-number">🛡️ ACTIVE: ${currentSender}</span><span class="sender-status status-active">ACTIVE</span></div>`
+                : `<div class="sender-row"><span class="sender-number">🛡️ ACTIVE: Tidak ada</span><span class="sender-status status-off">OFF</span></div>`;
+        }
+
+        function toggleAntiSender() {
+            const toggle = document.getElementById('antiSenderToggle');
+            antiSenderActive = !antiSenderActive;
+            toggle.classList.toggle('active', antiSenderActive);
+            
+            if (antiSenderActive) {
+                if (availableSenders.length > 0) {
+                    currentSender = availableSenders[0].phone;
+                    showNotification('Anti sender aktif!', 'success');
+                } else {
+                    showNotification('Tidak ada sender tersedia!', 'warning');
+                }
+            } else {
+                currentSender = null;
+                showNotification('Anti sender dinonaktifkan', 'info');
+            }
+            updateSenderList();
+        }
+
+        function startAntiSenderMonitor() {
+            antiSenderInterval = setInterval(async () => {
+                if (!antiSenderActive || userType !== 'vvip') return;
+                await loadAvailableSenders();
+                if (currentSender && !availableSenders.some(s => s.phone === currentSender)) {
+                    showNotification(`⚠️ Sender ${currentSender} telah BANNED/LOGOUT!`, 'warning');
+                    currentSender = availableSenders.length > 0 ? availableSenders[0].phone : null;
+                    updateSenderList();
+                }
+            }, 10000);
+        }
+
+        // Notification
+        function showNotification(message, type = 'info') {
+            const notif = document.getElementById('notification');
+            document.getElementById('notificationMessage').textContent = message;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) closeVideoModal();
+        });
+
+        // Start
+        checkAndRedirect();
+        checkAndShowAd();
+    </script>
+</body>
+</html>
